@@ -1,5 +1,6 @@
 import React from "react";
 import { Hero, GetThis } from "sld-component-library";
+// import { Hero, GetThis } from "../package";
 import Layout from "../components/layout";
 import SEO from "../components/seo";
 import ExampleList from "../components/ExampleList";
@@ -10,7 +11,7 @@ export default function Start() {
   return (
     <Layout>
       <SEO title="Home" />
-      <div className="is-grey is-orange-bg">
+      <div className="is-grey is-green-bg">
         <Hero places={Places} title="DataWell" />
       </div>
       <div className="is-white-bg">
