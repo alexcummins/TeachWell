@@ -1,9 +1,4 @@
 import com.google.api.gax.longrunning.OperationFuture;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.Storage.BlobListOption;
-import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.vision.v1.AnnotateFileResponse;
 import com.google.cloud.vision.v1.AnnotateFileResponse.Builder;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
@@ -62,8 +57,10 @@ public class DetectFaces {
 
   public static void main(String[] args) {
     try {
-      detectFaces("src/main/resources/happy.jpg", System.out);
+//      detectFaces("src/main/resources/happy.jpg", System.out);
+      detectFaces("src/main/resources/happyandsad.jpg", System.out);
     } catch (Exception e) {
+      System.err.println("exception");
       e.printStackTrace();
     }
   }
@@ -92,10 +89,15 @@ public class DetectFaces {
         // For full list of available annotations, see http://g.co/cloud/vision/docs
         for (FaceAnnotation annotation : res.getFaceAnnotationsList()) {
           out.printf(
-                  "anger: %s\njoy: %s\nsurprise: %s\nposition: %s",
+                  "anger: %s (%d)\njoy: %s (%d)\nsurprise: %s (%d)\nsorrow: %s (%d)\nposition: %s",
                   annotation.getAngerLikelihood(),
+                  annotation.getAngerLikelihoodValue(),
                   annotation.getJoyLikelihood(),
+                  annotation.getJoyLikelihoodValue(),
                   annotation.getSurpriseLikelihood(),
+                  annotation.getSurpriseLikelihoodValue(),
+                  annotation.getSorrowLikelihood(),
+                  annotation.getSorrowLikelihoodValue(),
                   annotation.getBoundingPoly());
         }
       }
