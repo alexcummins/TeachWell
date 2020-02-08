@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Header, Footer } from "sld-component-library";
-import Logo from "../images/mango.png";
+import Logo from "../images/logo.png";
 
 const Layout = ({ children }) => {
   return (
