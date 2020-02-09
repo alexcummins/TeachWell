@@ -1,29 +1,28 @@
-import http.client
-import asyncio
-import io
-import requests
 import json
 import glob
 import os
 import sys
 import time
 import uuid
+from twisted.internet import task, reactor
 import requests
-from urllib.parse import urlparse
-from io import BytesIO
-from PIL import Image, ImageDraw
 from azure.cognitiveservices.vision.face import FaceClient
-from msrest.authentication import CognitiveServicesCredentials
-from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person, SnapshotObjectType, OperationStatusType
+from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person, SnapshotObjectType, \
+    OperationStatusType
 from msrest.authentication import CognitiveServicesCredentials
 import random
 
+snapshots = []
+
+def get_snapshot():
+    snapshots.append({time.time(), detectandidentifyfaces()})
+
+
 def getMainEmotion(emot):
     emotion = {'anger': emot.anger, 'contempt': emot.contempt, 'disgust': emot.disgust, 'fear': emot.fear,
-         'happiness': emot.happiness, 'sadness': emot.sadness, 'surprise': emot.surprise}
+               'happiness': emot.happiness, 'sadness': emot.sadness, 'surprise': emot.surprise}
 
     max_emotion = 0
-
 
     for e in emotion:
         if emotion[e] > 0:
@@ -35,6 +34,14 @@ def getMainEmotion(emot):
 
     return 'ERROR'
 
+
+def aggEmotion(emotion, agg):
+    aggNew = {}
+    for e in agg:
+        aggNew[e] = int(agg[e]) + int(emotion[e])
+    return aggNew
+
+
 KEY = os.environ["FACE_SUBSCRIPTION_KEY"]
 ENDPOINT = os.environ['FACE_ENDPOINT']  # Create an authenticated FaceClient.
 
@@ -42,10 +49,10 @@ face_client = FaceClient(ENDPOINT, CognitiveServicesCredentials(KEY))
 
 ### TRAINING OF GROUPS
 
-PERSON_GROUP_ID = 'tank-top-high-school' + str(random.randint(0,100000000000))
+PERSON_GROUP_ID = 'tank-top-high-school' + str(random.randint(0, 100000000000))
 
 # Used for the Snapshot and Delete Person Group examples.
-TARGET_PERSON_GROUP_ID = str(uuid.uuid4()) # assign a random ID (or name it anything)
+TARGET_PERSON_GROUP_ID = str(uuid.uuid4())  # assign a random ID (or name it anything)
 
 '''
 Create the PersonGroup
@@ -126,101 +133,103 @@ while (True):
 
 ### DETECTION OF PEOPLE:
 
-print("Getting snapshot from camera:")
 
-url = "https://api.meraki.com/api/v0/networks/L_575897802350005364/cameras/Q2FV-UGQQ-3DF4/snapshot"
-
-payload = "{}"
-headers = {
-    'Accept': "*/*",
-    'Content-Type': "application/json",
-    'X-Cisco-Meraki-API-Key': "96850833f85705851d736e34914eea6db9360280",
-    'User-Agent': "PostmanRuntime/7.20.1",
-    'Cache-Control': "no-cache",
-    'Postman-Token': "96ff806f-e342-4f9a-897d-1cda4bcafe46,ad85cf6c-ff31-431e-8420-2e011457af30",
-    'Accept-Encoding': "gzip, deflate",
-    'Content-Length': "2",
-    'Referer': "https://api.meraki.com/api/v0/networks/L_575897802350005364/cameras/Q2FV-UGQQ-3DF4/snapshot",
-    'Connection': "keep-alive",
-    'cache-control': "no-cache"
+def detectandidentifyfaces():
+    print("Getting snapshot from camera:")
+    url = "https://api.meraki.com/api/v0/networks/L_575897802350005364/cameras/Q2FV-UGQQ-3DF4/snapshot"
+    payload = "{}"
+    headers = {
+        'Accept': "*/*",
+        'Content-Type': "application/json",
+        'X-Cisco-Meraki-API-Key': "96850833f85705851d736e34914eea6db9360280",
+        'User-Agent': "PostmanRuntime/7.20.1",
+        'Cache-Control': "no-cache",
+        'Postman-Token': "96ff806f-e342-4f9a-897d-1cda4bcafe46,ad85cf6c-ff31-431e-8420-2e011457af30",
+        'Accept-Encoding': "gzip, deflate",
+        'Content-Length': "2",
+        'Referer': "https://api.meraki.com/api/v0/networks/L_575897802350005364/cameras/Q2FV-UGQQ-3DF4/snapshot",
+        'Connection': "keep-alive",
+        'cache-control': "no-cache"
     }
+    response = requests.request("POST", url, data=payload, headers=headers)
+    jsonResponse = json.loads(response.text)
+    print(jsonResponse['url'])
+    camera_image_url = jsonResponse['url']
+    print("Using snapshot in response:")
+    print(camera_image_url)
+    # TODO: Need to sleep before we request as it needs to prepare url?
+    time.sleep(5)
+    # count = 0
+    # while (True):
+    #     count += 1
+    #     if count > 20:
+    #         raise Exception("Couldn't get image response from Meraki camera in time allocated")
+    #     try:
+    #         camera_image_name = os.path.basename(camera_image_url)
+    #         detected_faces = face_client.face.detect_with_url(url=str(camera_image_url), return_face_attributes='emotion')
+    #         break
+    #     except Exception:
+    #         time.sleep(0.5)
+    camera_image_name = os.path.basename(camera_image_url)
+    detected_faces = face_client.face.detect_with_url(url=str(camera_image_url), return_face_attributes=['emotion'])
+    face_ids = []
+    face_id_map = {}
+    print("printing face ids from detect")
+    for face in detected_faces:
+        print(face)
+        face_ids.append(face.face_id)
+        face_id_map[face.face_id] = face
+    print("Length: " + str(len(detected_faces)))
+    if len(detected_faces) == 0:
+        print("NO FACES DETECTED")
+        exit(1)
+    # Identify faces
+    results = face_client.face.identify(face_ids, PERSON_GROUP_ID)
+    # results = face_client.face.identify(face_ids, PERSON_GROUP_ID)
+    print('Identifying faces in {}'.format("Meraki image from camera"))
+    if not results:
+        print('No person identified in the person group for faces from {}.'.format("Meraki camera image"))
+    # First one is what we just got second one is from trained model
+    for person in results:
+        if len(person.candidates) == 0:
+            print("Unregistered face detected")
+            results.remove(person)
+        else:
+            print(
+                'Person for face ID {} candidate {} is identified in {} with a confidence of {}.'.format(person.face_id,
+                                                                                                         iddict[str(
+                                                                                                             person.candidates[
+                                                                                                                 0].person_id)],
+                                                                                                         "Camera image",
+                                                                                                         person.candidates[
+                                                                                                             0].confidence))  # Get topmost confidence score
+    print(len(results))
+    emotion_map = {}
+    aggregate_emotion = 'NO EMOTION'
 
+    emotion_agg = {'anger': 0, 'contempt': 0, 'disgust': 0, 'fear': 0,
+                   'happiness': 0, 'sadness': 0, 'surprise': 0}
 
-response = requests.request("POST", url, data=payload, headers=headers)
+    for person in results:
+        face_id = face_id_map[person.face_id]
+        emotions = face_id.face_attributes.emotion
+        emotion_map[str(face_id)] = emotions
+        emotion_agg = aggEmotion(emotion_map, emotion_agg)
+        print("Person {} has emotion {}".format(iddict[person.candidates[0].person_id], getMainEmotion(emotions)))
 
-jsonResponse = json.loads(response.text)
-print(jsonResponse['url'])
-camera_image_url = jsonResponse['url']
+    for emotion in emotion_agg:
+        emotion_agg[emotion] = emotion_agg[emotion] / len(emotion_agg)
 
-print("Using snapshot in response:")
+    return emotion_agg
 
-print(camera_image_url)
+l = task.LoopingCall(get_snapshot())
 
-# TODO: Need to sleep before we request as it needs to prepare url?
-time.sleep(10)
+l.start(13) # call every sixty seconds
 
-
-# count = 0
-# while (True):
-#     count += 1
-#     if count > 20:
-#         raise Exception("Couldn't get image response from Meraki camera in time allocated")
-#     try:
-#         camera_image_name = os.path.basename(camera_image_url)
-#         detected_faces = face_client.face.detect_with_url(url=str(camera_image_url), return_face_attributes='emotion')
-#         break
-#     except Exception:
-#         time.sleep(0.5)
-
-
-
-
-
-camera_image_name = os.path.basename(camera_image_url)
-detected_faces = face_client.face.detect_with_url(url=str(camera_image_url), return_face_attributes=['emotion'])
-
-
-
-
-face_ids = []
-face_id_map = {}
-print("printing face ids from detect")
-for face in detected_faces:
-    print(face)
-    face_ids.append(face.face_id)
-    face_id_map[face.face_id] = face
-print("Length: " + str(len(detected_faces)))
-
-# Identify faces
-results = face_client.face.identify(face_ids, PERSON_GROUP_ID)
-# results = face_client.face.identify(face_ids, PERSON_GROUP_ID)
-print('Identifying faces in {}'.format("Meraki image from camera"))
-if not results:
-    print('No person identified in the person group for faces from {}.'.format("Meraki camera image"))
-# First one is what we just got second one is from trained model
-
-for person in results:
-    if len(person.candidates) == 0:
-        print("Unregistered face detected")
-        results.remove(person)
-    else:
-        print('Person for face ID {} candidate {} is identified in {} with a confidence of {}.'.format(person.face_id, iddict[str(person.candidates[0].person_id)], "Camera image", person.candidates[0].confidence)) # Get topmost confidence score
-
-print(len(results))
-
-emotion_map = {}
-
-for person in results:
-    face_id = face_id_map[person.face_id]
-    emotions = face_id.face_attributes.emotion
-    emotion_map[str(face_id)] = emotions
-    print("Person {} has emotion {}".format(iddict[person.candidates[0].person_id], getMainEmotion(emotions)))
+reactor.run()
 
 
 
 # camera_image_name = os.path.basename(camera_image_url)
 # detected_faces = face_client.face.detect_with_url(url=str(camera_image_url))
 # detected_faces = face_client.face.detect_with_url(url="https://spn2.meraki.com/stream/jpeg/snapshot/e4f394dc9815dd48VHOGUwN2E0YjQyMjRmNDY5ZTNmZjdjY2MwNzRmOWZjYjE3OWZjNjRkOTMyZmQyOGQ3OGZjMjgwYzk2OTA3YmU5N2C98BJIhQbKv0YJTyY1gaF7hzFWv2r-q6w4BFsPwOE6gOfu9j-CtLJOJlBxqc81OGyLK2s_gmKmT781UGBF-Co4qfOwNCNpm_y5FkIY7ua0HFW1BuByTriTi1yL7_W3h2Q1Ceh9232Yd87EyUH46Z4ZA1fq4TFgYgT1Cr_hJUYDCowaRqCY-UYPMPkDxktGpfTIM8J-M40JL8kUEm3urww")
-
-
-
