@@ -57,11 +57,10 @@ def get_snapshot():
     temp = str(eng).replace(",", ",\n")
 
     temp2 = temp.replace("'", '"')
+    data2 = []
 
-    if (len(data2) == 0):
-        data2.append(temp2)
-    else:
-        data2[0] = temp2
+    data2.append(temp2)
+
 
 
 
