@@ -40,7 +40,7 @@ class PieChart extends Component {
 			exportEnabled: true,
 			animationEnabled: true,
 			title: {
-				text: "Lesson Engagement"
+				text: "Real-time Lesson Engagement"
 			},
 			data: [{
 				type: "pie",
