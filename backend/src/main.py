@@ -25,7 +25,7 @@ def get_engagement(agg):
             'disgust': 0,
             'fear': 0,
             'happiness': agg["happiness"] * 0.25,
-            'neutral': agg["neutral"],
+            'neutral': agg["neutral"] * 0.25,
             'sadness': 0,
             'surprise': agg["surprise"]
         }
@@ -51,8 +51,9 @@ def get_snapshot():
 
     eng = {}
 
-    eng["e"] = str(int(e * 100))
-    eng["ne"] = str(int((1 - e) * 100))
+    val = int(e * 100)
+    eng["e"] = str(val)
+    eng["ne"] = str(100 - val)
 
     temp = str(eng).replace(",", ",\n")
 
