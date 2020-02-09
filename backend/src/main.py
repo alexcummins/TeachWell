@@ -54,26 +54,38 @@ Detect faces and register to correct person
 # adele_images = [file for file in glob.glob('resource/*') if file.startswith("adele")]
 
 
-kaz_images = [file for file in glob.glob('resource/kaz.jpeg')]
-alex_images = [file for file in glob.glob('resource/alex.jpeg')]
-adele_images = [file for file in glob.glob('resource/adele.jpeg')]
+kaz_images = [file for file in glob.glob('resource/kaz*.jpeg')]
+alex_images = [file for file in glob.glob('resource/alex*.jpeg')]
+adele_images = [file for file in glob.glob('resource/adele*.jpeg')]
+# adele_images.append(file for file in glob.glob('resource/adele1.jpeg'))
 
 print(len(kaz_images))
+
+iddict = {}
 
 # Add to a woman person
 for image in kaz_images:
     w = open(image, 'r+b')
     face_client.person_group_person.add_face_from_stream(PERSON_GROUP_ID, kaz.person_id, w)
+    print("KAZ ID: " + str(kaz.person_id))
+
+iddict[str(kaz.person_id)] = "Kaz"
 
 # Add to a man person
 for image in alex_images:
     m = open(image, 'r+b')
     face_client.person_group_person.add_face_from_stream(PERSON_GROUP_ID, alex.person_id, m)
+    print("ALEX ID: " + str(alex.person_id))
+
+iddict[str(alex.person_id)] = "Alex"
 
 # Add to a child person
 for image in adele_images:
     ch = open(image, 'r+b')
     face_client.person_group_person.add_face_from_stream(PERSON_GROUP_ID, adele.person_id, ch)
+    print("ADELE ID: " + str(adele.person_id))
+
+iddict[str(adele.person_id)] = "Adele"
 
 '''
 Train PersonGroup
@@ -151,7 +163,7 @@ print('Identifying faces in {}'.format("Meraki image from camera"))
 if not results:
     print('No person identified in the person group for faces from {}.'.format("Meraki camera image"))
 for person in results:
-    print('Person for face ID {} candidate {} is identified in {} with a confidence of {}.'.format(person.face_id, person.candidates, "Camera image", person.candidates[0].confidence)) # Get topmost confidence score
+    print('Person for face ID {} candidate {} is identified in {} with a confidence of {}.'.format(person.face_id, iddict[str(person.candidates[0].person_id)], "Camera image", person.candidates[0].confidence)) # Get topmost confidence score
 
 
 
