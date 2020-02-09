@@ -1,6 +1,8 @@
 import http.client
 import asyncio
 import io
+import requests
+import json
 import glob
 import os
 import sys
@@ -94,25 +96,54 @@ while (True):
 
 ### DETECTION OF PEOPLE:
 
-conn = http.client.HTTPConnection("api,meraki,com")
+print("Getting snapshot from camera:")
+
+url = "https://api.meraki.com/api/v0/networks/L_575897802350005364/cameras/Q2FV-UGQQ-3DF4/snapshot"
 
 payload = "{}"
-
 headers = {
     'Accept': "*/*",
     'Content-Type': "application/json",
-    'cache-control': "no-cache",
-    'Postman-Token': "62485006-55c4-495a-aa86-ddd6d0aaf024"
+    'X-Cisco-Meraki-API-Key': "96850833f85705851d736e34914eea6db9360280",
+    'User-Agent': "PostmanRuntime/7.20.1",
+    'Cache-Control': "no-cache",
+    'Postman-Token': "96ff806f-e342-4f9a-897d-1cda4bcafe46,ad85cf6c-ff31-431e-8420-2e011457af30",
+    'Accept-Encoding': "gzip, deflate",
+    'Content-Length': "2",
+    'Referer': "https://api.meraki.com/api/v0/networks/L_575897802350005364/cameras/Q2FV-UGQQ-3DF4/snapshot",
+    'Connection': "keep-alive",
+    'cache-control': "no-cache"
     }
 
-conn.request("POST", "api,v0,networks,L_575897802350005364,cameras,Q2FV-UGQQ-3DF4,snapshot", payload, headers)
+response = requests.request("POST", url, data=payload, headers=headers)
 
-res = conn.getresponse()
-data = res.read()
+jsonResponse = json.loads(response.text)
+print(jsonResponse['url'])
+camera_image_url = jsonResponse['url']
 
-print(data.decode("utf-8"))
+print("Using snapshot in response:")
 
-# kaz_image_url =
-# kaz_image_name = os.path.basename(kaz_image_url)
-# detected_faces = face_client.face.detect_with_url(url=kaz_image_url)
+print(camera_image_url)
+
+# TODO: Need to sleep before we request as it needs to prepare url?
+time.sleep(3)
+
+count = 0
+while (True):
+    count += 1
+    if count > 12:
+        raise Exception("Couldn't get image response from Meraki camera in time allocated")
+    try:
+        camera_image_name = os.path.basename(camera_image_url)
+        detected_faces = face_client.face.detect_with_url(url=str(camera_image_url))
+        break
+    except Exception:
+        time.sleep(0.5)
+
+
+# camera_image_name = os.path.basename(camera_image_url)
+# detected_faces = face_client.face.detect_with_url(url=str(camera_image_url))
+# detected_faces = face_client.face.detect_with_url(url="https://spn2.meraki.com/stream/jpeg/snapshot/e4f394dc9815dd48VHOGUwN2E0YjQyMjRmNDY5ZTNmZjdjY2MwNzRmOWZjYjE3OWZjNjRkOTMyZmQyOGQ3OGZjMjgwYzk2OTA3YmU5N2C98BJIhQbKv0YJTyY1gaF7hzFWv2r-q6w4BFsPwOE6gOfu9j-CtLJOJlBxqc81OGyLK2s_gmKmT781UGBF-Co4qfOwNCNpm_y5FkIY7ua0HFW1BuByTriTi1yL7_W3h2Q1Ceh9232Yd87EyUH46Z4ZA1fq4TFgYgT1Cr_hJUYDCowaRqCY-UYPMPkDxktGpfTIM8J-M40JL8kUEm3urww")
+
+
 
