@@ -33,7 +33,7 @@ class LineChart extends Component {
 			exportEnabled: true,
 			theme: "light2", // "light1", "dark1", "dark2"
 			title:{
-				text: "Lesson Engagement Summary"
+				text: "Lesson Engagement Over Time"
 			},
 			axisY: {
 				title: "Engagement",
@@ -79,8 +79,7 @@ class LineChart extends Component {
 		
 		return (
 		<div>
-			<h1>React Line Chart</h1>
-			<CanvasJSChart options = {options} 
+			<CanvasJSChart options = {options}
 				/* onRef={ref => this.chart = ref} */
 			/>
 			{/*You can get reference to the chart instance as shown above using onRef. This allows you to access all chart properties and methods*/}
