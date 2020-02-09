@@ -11,11 +11,53 @@ from azure.cognitiveservices.vision.face.models import TrainingStatusType, Perso
     OperationStatusType
 from msrest.authentication import CognitiveServicesCredentials
 import random
+import threading
+
+f = open("../../react-canvasjs-chart-samples/public/summaryData.json", "w")
+f.write("")
+
+def get_engagement(agg):
+    engagement = 0
+    for e in agg:
+        switcher = {
+            'anger': 0,
+            'contempt': 0,
+            'disgust': 0,
+            'fear': 0,
+            'happiness': agg["happiness"] * 0.25,
+            'neutral': agg["neutral"],
+            'sadness': 0,
+            'surprise': agg["surprise"]
+        }
+        engagement += switcher.get(e)
+    return engagement
+
 
 snapshots = []
+starttime = time.time()
 
 def get_snapshot():
-    snapshots.append({time.time(), detectandidentifyfaces()})
+    with open("../../react-canvasjs-chart-samples/public/summaryData.json", "r") as f:
+        data = list(f)
+
+    threading.Timer(10, get_snapshot).start()
+    s = {}
+    s["x"] = time.time() - starttime
+    s["y"] = get_engagement(detectandidentifyfaces())
+
+    if(len(data) == 0):
+        data.append("[ \n")
+        data.append("\t\t {}".format(s))
+    else:
+        data[0] = "[ \n"
+        data[len(data) - 2] = data[len(data) - 2] + ","
+        data[len(data) - 1] = "\t\t {}".format(s)
+
+    data.append("\n]")
+
+    with open("../../react-canvasjs-chart-samples/public/summaryData.json", "w") as f:
+        f.writelines(data)
+
 
 
 def getMainEmotion(emot):
@@ -25,7 +67,7 @@ def getMainEmotion(emot):
     max_emotion = 0
 
     for e in emotion:
-        if emotion[e] > 0:
+        if emotion[e] > max_emotion:
             max_emotion = emotion[e]
 
     for e in emotion:
@@ -38,7 +80,17 @@ def getMainEmotion(emot):
 def aggEmotion(emotion, agg):
     aggNew = {}
     for e in agg:
-        aggNew[e] = int(agg[e]) + int(emotion[e])
+        switcher = {
+            'anger': emotion.anger,
+            'contempt': emotion.contempt,
+            'disgust': emotion.disgust,
+            'fear': emotion.fear,
+            'happiness': emotion.happiness,
+            'neutral': emotion.neutral,
+            'sadness': emotion.sadness,
+            'surprise': emotion.surprise
+        }
+        aggNew[e] = float(agg[e]) + float(switcher.get(e, 0))
     return aggNew
 
 
@@ -69,6 +121,7 @@ kaz = face_client.person_group_person.create(PERSON_GROUP_ID, "kaz")
 alex = face_client.person_group_person.create(PERSON_GROUP_ID, "alex")
 # Define child friend
 adele = face_client.person_group_person.create(PERSON_GROUP_ID, "adele")
+john = face_client.person_group_person.create(PERSON_GROUP_ID, "john")
 
 '''
 Detect faces and register to correct person
@@ -82,6 +135,7 @@ Detect faces and register to correct person
 kaz_images = [file for file in glob.glob('resource/kaz*.jpeg')]
 alex_images = [file for file in glob.glob('resource/alex*.jpeg')]
 adele_images = [file for file in glob.glob('resource/adele*.jpeg')]
+john_images = [file for file in glob.glob('resource/john*.jpeg')]
 # adele_images.append(file for file in glob.glob('resource/adele1.jpeg'))
 
 print(len(kaz_images))
@@ -112,6 +166,14 @@ for image in adele_images:
 
 iddict[str(adele.person_id)] = "Adele"
 
+# Add to a child person
+for image in john_images:
+    ch = open(image, 'r+b')
+    face_client.person_group_person.add_face_from_stream(PERSON_GROUP_ID, john.person_id, ch)
+    print("ADELE ID: " + str(john.person_id))
+
+iddict[str(john.person_id)] = "John"
+
 '''
 Train PersonGroup
 '''
@@ -132,7 +194,6 @@ while (True):
 
 
 ### DETECTION OF PEOPLE:
-
 
 def detectandidentifyfaces():
     print("Getting snapshot from camera:")
@@ -158,7 +219,7 @@ def detectandidentifyfaces():
     print("Using snapshot in response:")
     print(camera_image_url)
     # TODO: Need to sleep before we request as it needs to prepare url?
-    time.sleep(5)
+    time.sleep(7)
     # count = 0
     # while (True):
     #     count += 1
@@ -214,17 +275,21 @@ def detectandidentifyfaces():
     for person in results:
         face_id = face_id_map[person.face_id]
         emotions = face_id.face_attributes.emotion
+        # emotions_json = json.loads(str(face_id.face_attributes.emotion))
         emotion_map[str(face_id)] = emotions
         emotion_agg = aggEmotion(emotions, emotion_agg)
-        print("Person {} has emotion {}".format(iddict[person.candidates[0].person_id], getMainEmotion(emotions)))
+        print("Person {} has emotion {} {}".format(iddict[person.candidates[0].person_id], getMainEmotion(emotions), emotions))
+
+    for e in emotion_agg:
+        emotion_agg[e] = emotion_agg[e] / len(results)
+
+    print("AGG {} ".format(emotion_agg))
 
     return emotion_agg
 
-l = task.LoopingCall(get_snapshot())
 
-l.start(13) # call every sixty seconds
+get_snapshot()
 
-reactor.run()
 
 
 
