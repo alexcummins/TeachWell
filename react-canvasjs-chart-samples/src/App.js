@@ -8,7 +8,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            line: false
+            line: false,
         }
         this.line.bind(this);
     }
@@ -18,6 +18,8 @@ class App extends Component {
     }
   render() {
       if (!this.state.line) {
+
+
           return ( <div>
               <div>
                   <Button onClick={() => {this.line()}} > Summary

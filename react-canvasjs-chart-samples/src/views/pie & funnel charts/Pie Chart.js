@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {Helmet} from 'react-helmet'
 import CanvasJSReact from '../../assets/canvasjs.react';
 import axios from 'axios';
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -31,7 +32,11 @@ class PieChart extends Component {
 	}
 
 	render() {
+		const bgcolor = 						this.state.data.e >= 60 ? '#90ee90'
+			: this.state.data.ne >= 60 ? 'pink'
+				: '#ffffba';
 		const options = {
+			backgroundColor: bgcolor,
 			exportEnabled: true,
 			animationEnabled: true,
 			title: {
@@ -49,7 +54,9 @@ class PieChart extends Component {
 					{ y: this.state.data.e, label: "Engaged", color: "green" },
 					{ y: this.state.data.ne, label: "Not engaged"  },
 				]
-			}]
+			}],
+			width:window.innerWidth,
+			height:window.innerHeight-50,
 		}
 
 		return (
