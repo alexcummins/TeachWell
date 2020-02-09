@@ -37,6 +37,9 @@ snapshots = []
 starttime = time.time()
 
 def get_snapshot():
+    with open("../../react-canvasjs-chart-samples/public/data.json", "r") as dataf:
+        data2 = list(dataf)
+
     with open("../../react-canvasjs-chart-samples/public/summaryData.json", "r") as f:
         data = list(f)
 
@@ -44,7 +47,25 @@ def get_snapshot():
     s = {}
     s["x"] = time.time() - starttime
     e = get_engagement(detectandidentifyfaces())
-    s["y"] = str("{0:.2f}").format(e)
+    s["y"] = str(int(e * 100))
+
+    eng = {}
+
+    eng["e"] = str(int(e * 100))
+    eng["ne"] = str(int((1 - e) * 100))
+
+    temp = str(eng).replace(",", ",\n")
+
+    temp2 = temp.replace("'", '"')
+
+    if (len(data2) == 0):
+        data2.append(temp2)
+    else:
+        for i in range(len(data2)):
+            data2[i] = temp2
+
+
+
 
     if(len(data) == 0):
         data.append("[ \n")
@@ -59,9 +80,11 @@ def get_snapshot():
     for i in range(len(data)):
         data[i] = data[i].replace("'", '"')
 
-
     with open("../../react-canvasjs-chart-samples/public/summaryData.json", "w") as f:
         f.writelines(data)
+
+    with open("../../react-canvasjs-chart-samples/public/data.json", "w") as dataf:
+        dataf.writelines(data2)
 
 
 
