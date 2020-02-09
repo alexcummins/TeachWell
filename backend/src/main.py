@@ -20,7 +20,7 @@ def get_snapshot():
 
 def getMainEmotion(emot):
     emotion = {'anger': emot.anger, 'contempt': emot.contempt, 'disgust': emot.disgust, 'fear': emot.fear,
-               'happiness': emot.happiness, 'sadness': emot.sadness, 'surprise': emot.surprise}
+               'happiness': emot.happiness, 'neutral': emot.neutral, 'sadness': emot.sadness, 'surprise': emot.surprise}
 
     max_emotion = 0
 
@@ -205,20 +205,18 @@ def detectandidentifyfaces():
                                                                                                              0].confidence))  # Get topmost confidence score
     print(len(results))
     emotion_map = {}
-    aggregate_emotion = 'NO EMOTION'
+
+    engagement_score = 0
 
     emotion_agg = {'anger': 0, 'contempt': 0, 'disgust': 0, 'fear': 0,
-                   'happiness': 0, 'sadness': 0, 'surprise': 0}
+                   'happiness': 0, 'neutral': 0, 'sadness': 0, 'surprise': 0}
 
     for person in results:
         face_id = face_id_map[person.face_id]
         emotions = face_id.face_attributes.emotion
         emotion_map[str(face_id)] = emotions
-        emotion_agg = aggEmotion(emotion_map, emotion_agg)
+        emotion_agg = aggEmotion(emotions, emotion_agg)
         print("Person {} has emotion {}".format(iddict[person.candidates[0].person_id], getMainEmotion(emotions)))
-
-    for emotion in emotion_agg:
-        emotion_agg[emotion] = emotion_agg[emotion] / len(emotion_agg)
 
     return emotion_agg
 
