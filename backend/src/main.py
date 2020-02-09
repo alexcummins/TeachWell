@@ -43,7 +43,8 @@ def get_snapshot():
     threading.Timer(10, get_snapshot).start()
     s = {}
     s["x"] = time.time() - starttime
-    s["y"] = get_engagement(detectandidentifyfaces())
+    e = get_engagement(detectandidentifyfaces())
+    s["y"] = str("{0:.2f}").format(e)
 
     if(len(data) == 0):
         data.append("[ \n")
@@ -54,6 +55,10 @@ def get_snapshot():
         data[len(data) - 1] = "\t\t {}".format(s)
 
     data.append("\n]")
+
+    for i in range(len(data)):
+        data[i] = data[i].replace("'", '"')
+
 
     with open("../../react-canvasjs-chart-samples/public/summaryData.json", "w") as f:
         f.writelines(data)
