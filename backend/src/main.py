@@ -18,31 +18,27 @@ from azure.cognitiveservices.vision.face.models import TrainingStatusType, Perso
 from msrest.authentication import CognitiveServicesCredentials
 import random
 
+def getMainEmotion(emot):
+    emotion = {'anger': emot.anger, 'contempt': emot.contempt, 'disgust': emot.disgust, 'fear': emot.fear,
+         'happiness': emot.happiness, 'sadness': emot.sadness, 'surprise': emot.surprise}
+
+    max_emotion = 0
+
+
+    for e in emotion:
+        if emotion[e] > 0:
+            max_emotion = emotion[e]
+
+    for e in emotion:
+        if emotion[e] == max_emotion:
+            return e
+
+    return 'ERROR'
+
 KEY = os.environ["FACE_SUBSCRIPTION_KEY"]
 ENDPOINT = os.environ['FACE_ENDPOINT']  # Create an authenticated FaceClient.
 
 face_client = FaceClient(ENDPOINT, CognitiveServicesCredentials(KEY))
-#
-# #DETECT
-# # Detect a face in an image that contains a single face
-# single_face_image_url = ''
-# single_imagit ge_name = os.path.basename(single_face_image_url)
-# detected_faces = face_client.face.detect_with_url(url=single_face_image_url)
-# if not detected_faces:
-#     raise Exception('No face detected from image {}'.format(single_image_name))
-#
-# # Display the detected face ID in the first single-face image.
-# # Face IDs are used for comparison to faces (their IDs) detected in other images.
-# print('Detected face ID from', single_image_name, ':')
-# for face in detected_faces: print (face.face_id)
-# print()
-#
-# # Save this ID for use in Find Similar
-# first_image_face_ID = detected_faces[0].face_id
-#
-#
-#
-
 
 ### TRAINING OF GROUPS
 
@@ -149,6 +145,7 @@ headers = {
     'cache-control': "no-cache"
     }
 
+
 response = requests.request("POST", url, data=payload, headers=headers)
 
 jsonResponse = json.loads(response.text)
@@ -160,23 +157,38 @@ print("Using snapshot in response:")
 print(camera_image_url)
 
 # TODO: Need to sleep before we request as it needs to prepare url?
-time.sleep(3)
+time.sleep(10)
 
-count = 0
-while (True):
-    count += 1
-    if count > 12:
-        raise Exception("Couldn't get image response from Meraki camera in time allocated")
-    try:
-        camera_image_name = os.path.basename(camera_image_url)
-        detected_faces = face_client.face.detect_with_url(url=str(camera_image_url))
-        break
-    except Exception:
-        time.sleep(0.5)
+
+# count = 0
+# while (True):
+#     count += 1
+#     if count > 20:
+#         raise Exception("Couldn't get image response from Meraki camera in time allocated")
+#     try:
+#         camera_image_name = os.path.basename(camera_image_url)
+#         detected_faces = face_client.face.detect_with_url(url=str(camera_image_url), return_face_attributes='emotion')
+#         break
+#     except Exception:
+#         time.sleep(0.5)
+
+
+
+
+
+camera_image_name = os.path.basename(camera_image_url)
+detected_faces = face_client.face.detect_with_url(url=str(camera_image_url), return_face_attributes=['emotion'])
+
+
+
 
 face_ids = []
+face_id_map = {}
+print("printing face ids from detect")
 for face in detected_faces:
+    print(face)
     face_ids.append(face.face_id)
+    face_id_map[face.face_id] = face
 print("Length: " + str(len(detected_faces)))
 
 # Identify faces
@@ -185,20 +197,24 @@ results = face_client.face.identify(face_ids, PERSON_GROUP_ID)
 print('Identifying faces in {}'.format("Meraki image from camera"))
 if not results:
     print('No person identified in the person group for faces from {}.'.format("Meraki camera image"))
-    mappedPeople = [] # First one is what we just got second one is from trained model
+# First one is what we just got second one is from trained model
+
 for person in results:
     if len(person.candidates) == 0:
         print("Unregistered face detected")
         results.remove(person)
     else:
         print('Person for face ID {} candidate {} is identified in {} with a confidence of {}.'.format(person.face_id, iddict[str(person.candidates[0].person_id)], "Camera image", person.candidates[0].confidence)) # Get topmost confidence score
-        mappedPeople.add[person.face_id, person.candidates[0].person_id]
 
-print(len(results))(person.candidates[0].person_id)
+print(len(results))
+
+emotion_map = {}
 
 for person in results:
-    person.candidates[0].person_id
-
+    face_id = face_id_map[person.face_id]
+    emotions = face_id.face_attributes.emotion
+    emotion_map[str(face_id)] = emotions
+    print("Person {} has emotion {}".format(iddict[person.candidates[0].person_id], getMainEmotion(emotions)))
 
 
 
