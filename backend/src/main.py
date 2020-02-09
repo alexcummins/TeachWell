@@ -140,6 +140,20 @@ while (True):
     except Exception:
         time.sleep(0.5)
 
+face_ids = []
+for face in detected_faces:
+    face_ids.append(face.face_id)
+print("Length: " + str(len(detected_faces)))
+
+# Identify faces
+results = face_client.face.identify(face_ids, PERSON_GROUP_ID)
+print('Identifying faces in {}'.format("Meraki image from camera"))
+if not results:
+    print('No person identified in the person group for faces from {}.'.format("Meraki camera image"))
+for person in results:
+    print('Person for face ID {} candidate {} is identified in {} with a confidence of {}.'.format(person.face_id, person.candidates, "Camera image", person.candidates[0].confidence)) # Get topmost confidence score
+
+
 
 # camera_image_name = os.path.basename(camera_image_url)
 # detected_faces = face_client.face.detect_with_url(url=str(camera_image_url))
