@@ -14,15 +14,16 @@ from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person, SnapshotObjectType, OperationStatusType
 from msrest.authentication import CognitiveServicesCredentials
+import random
 
 KEY = os.environ["FACE_SUBSCRIPTION_KEY"]
-ENDPOINT = os.environ['FACE_ENDPOINT'] # Create an authenticated FaceClient.
+ENDPOINT = os.environ['FACE_ENDPOINT']  # Create an authenticated FaceClient.
 
 face_client = FaceClient(ENDPOINT, CognitiveServicesCredentials(KEY))
 
 ### TRAINING OF GROUPS
 
-PERSON_GROUP_ID = 'tank-top-high-school-pupil9'
+PERSON_GROUP_ID = 'tank-top-high-school-pupil9' + str(random.randint(0,1000000000000000000))
 
 # Used for the Snapshot and Delete Person Group examples.
 TARGET_PERSON_GROUP_ID = str(uuid.uuid4()) # assign a random ID (or name it anything)
@@ -93,23 +94,23 @@ while (True):
 
 ### DETECTION OF PEOPLE:
 
-# conn = http.client.HTTPConnection("api,meraki,com")
+conn = http.client.HTTPConnection("api,meraki,com")
 
-# payload = "{}"
+payload = "{}"
 
-# headers = {
-    # 'Accept': "*/*",
-    # 'Content-Type': "application/json",
-    # 'cache-control': "no-cache",
-    # 'Postman-Token': "62485006-55c4-495a-aa86-ddd6d0aaf024"
-    # }
+headers = {
+    'Accept': "*/*",
+    'Content-Type': "application/json",
+    'cache-control': "no-cache",
+    'Postman-Token': "62485006-55c4-495a-aa86-ddd6d0aaf024"
+    }
 
-# conn.request("POST", "api,v0,networks,L_575897802350005364,cameras,Q2FV-UGQQ-3DF4,snapshot", payload, headers)
+conn.request("POST", "api,v0,networks,L_575897802350005364,cameras,Q2FV-UGQQ-3DF4,snapshot", payload, headers)
 
-# res = conn.getresponse()
-# data = res.read()
+res = conn.getresponse()
+data = res.read()
 
-# print(data.decode("utf-8"))
+print(data.decode("utf-8"))
 
 # kaz_image_url =
 # kaz_image_name = os.path.basename(kaz_image_url)
