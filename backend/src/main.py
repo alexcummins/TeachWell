@@ -61,8 +61,7 @@ def get_snapshot():
     if (len(data2) == 0):
         data2.append(temp2)
     else:
-        for i in range(len(data2)):
-            data2[i] = temp2
+        data2[0] = temp2
 
 
 
