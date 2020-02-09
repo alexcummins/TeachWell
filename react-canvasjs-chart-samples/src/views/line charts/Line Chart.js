@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CanvasJSReact from '../../assets/canvasjs.react';
+import axios from "axios";
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
  
 class LineChart extends Component {
@@ -7,11 +8,23 @@ class LineChart extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			data: {
-				dataPoints: []
-			},
+			data: [],
 			count: 0
 		}
+	}
+
+	getData(){
+		axios.get('http://localhost:3000/summaryData.json')
+			.then( (response)=> {
+				// console.log(response);
+				this.setState({data: response.data}).then(() => {
+					this.chart.render()
+					console.log(JSON.stringify(this.state.data))})
+			})
+	};
+
+	componentDidMount() {
+		setInterval(() => this.getData(), 10000)
 	}
 
 	render() {
@@ -35,7 +48,7 @@ class LineChart extends Component {
 			data: [{
 				type: "line",
 				toolTipContent: "Time {x}: {y}%",
-				dataPoints: [],
+				dataPoints: this.state.data,
 				// dataPoints: [
 				// 	{ x: 1, y: 64 },
 				// 	{ x: 2, y: 61 },

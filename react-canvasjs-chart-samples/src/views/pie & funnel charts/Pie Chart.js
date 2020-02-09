@@ -9,8 +9,8 @@ class PieChart extends Component {
 		super(props);
 		this.state = {
 			data: {
-				"e": 51,
-				"ne": 49,
+				"e": 0,
+				"ne": 0,
 			},
 			count: 0
 		}
@@ -46,15 +46,14 @@ class PieChart extends Component {
 				indexLabelFontSize: 16,
 				indexLabel: "{label} - {y}%",
 				dataPoints: [
-					{ y: this.state.data.e, label: "Engaged" },
-					{ y: this.state.data.ne, label: "Not engaged" },
+					{ y: this.state.data.e, label: "Engaged", color: "green" },
+					{ y: this.state.data.ne, label: "Not engaged"  },
 				]
 			}]
 		}
 
 		return (
 		<div>
-			<h1>React Pie Chart</h1>
 			<CanvasJSChart options = {options} 
 				onRef={ref => this.chart = ref}
 			/>
