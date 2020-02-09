@@ -22,10 +22,31 @@ KEY = os.environ["FACE_SUBSCRIPTION_KEY"]
 ENDPOINT = os.environ['FACE_ENDPOINT']  # Create an authenticated FaceClient.
 
 face_client = FaceClient(ENDPOINT, CognitiveServicesCredentials(KEY))
+#
+# #DETECT
+# # Detect a face in an image that contains a single face
+# single_face_image_url = ''
+# single_imagit ge_name = os.path.basename(single_face_image_url)
+# detected_faces = face_client.face.detect_with_url(url=single_face_image_url)
+# if not detected_faces:
+#     raise Exception('No face detected from image {}'.format(single_image_name))
+#
+# # Display the detected face ID in the first single-face image.
+# # Face IDs are used for comparison to faces (their IDs) detected in other images.
+# print('Detected face ID from', single_image_name, ':')
+# for face in detected_faces: print (face.face_id)
+# print()
+#
+# # Save this ID for use in Find Similar
+# first_image_face_ID = detected_faces[0].face_id
+#
+#
+#
+
 
 ### TRAINING OF GROUPS
 
-PERSON_GROUP_ID = 'tank-top-high-school-pupil9' + str(random.randint(0,1000000000000000000))
+PERSON_GROUP_ID = 'tank-top-high-school' + str(random.randint(0,100000000000))
 
 # Used for the Snapshot and Delete Person Group examples.
 TARGET_PERSON_GROUP_ID = str(uuid.uuid4()) # assign a random ID (or name it anything)
@@ -37,6 +58,7 @@ Create the PersonGroup
 print('Person group:', PERSON_GROUP_ID)
 # TODO: THis shouldn't need commenting out hmm
 face_client.person_group.create(person_group_id=PERSON_GROUP_ID, name=PERSON_GROUP_ID)
+# face_client.person_group.get('tank-top-high-school')
 
 # Define woman friend
 kaz = face_client.person_group_person.create(PERSON_GROUP_ID, "kaz")
@@ -159,11 +181,24 @@ print("Length: " + str(len(detected_faces)))
 
 # Identify faces
 results = face_client.face.identify(face_ids, PERSON_GROUP_ID)
+# results = face_client.face.identify(face_ids, PERSON_GROUP_ID)
 print('Identifying faces in {}'.format("Meraki image from camera"))
 if not results:
     print('No person identified in the person group for faces from {}.'.format("Meraki camera image"))
+    mappedPeople = [] # First one is what we just got second one is from trained model
 for person in results:
-    print('Person for face ID {} candidate {} is identified in {} with a confidence of {}.'.format(person.face_id, iddict[str(person.candidates[0].person_id)], "Camera image", person.candidates[0].confidence)) # Get topmost confidence score
+    if len(person.candidates) == 0:
+        print("Unregistered face detected")
+        results.remove(person)
+    else:
+        print('Person for face ID {} candidate {} is identified in {} with a confidence of {}.'.format(person.face_id, iddict[str(person.candidates[0].person_id)], "Camera image", person.candidates[0].confidence)) # Get topmost confidence score
+        mappedPeople.add[person.face_id, person.candidates[0].person_id]
+
+print(len(results))(person.candidates[0].person_id)
+
+for person in results:
+    person.candidates[0].person_id
+
 
 
 
