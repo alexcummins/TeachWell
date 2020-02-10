@@ -28,7 +28,7 @@ class PieChart extends Component {
 	};
 
 	componentDidMount() {
-		setInterval(() => this.getData(), 15000)
+		setInterval(() => this.getData(), 1000)
 	}
 
 	render() {

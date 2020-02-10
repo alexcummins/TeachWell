@@ -25,7 +25,7 @@ def get_engagement(agg):
             'disgust': 0,
             'fear': 0,
             'happiness': agg["happiness"] * 0.25,
-            'neutral': agg["neutral"] * 0.25,
+            'neutral': agg["neutral"] * 0.5,
             'sadness': 0,
             'surprise': agg["surprise"]
         }
@@ -37,17 +37,22 @@ snapshots = []
 starttime = time.time()
 
 def get_snapshot():
+    threading.Timer(30, get_snapshot).start()
+
     with open("../../react-canvasjs-chart-samples/public/data.json", "r") as dataf:
         data2 = list(dataf)
 
     with open("../../react-canvasjs-chart-samples/public/summaryData.json", "r") as f:
         data = list(f)
 
-    threading.Timer(10, get_snapshot).start()
+    dataf.close()
+    f.close()
+
+
     s = {}
     s["x"] = time.time() - starttime
     e = get_engagement(detectandidentifyfaces())
-    s["y"] = str(int(e * 100))
+    s["y"] = int(e * 100)
 
     eng = {}
 
@@ -84,6 +89,9 @@ def get_snapshot():
 
     with open("../../react-canvasjs-chart-samples/public/data.json", "w") as dataf:
         dataf.writelines(data2)
+
+    dataf.close()
+    f.close()
 
 
 
