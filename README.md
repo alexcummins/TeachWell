@@ -27,3 +27,10 @@ Uses facial recognition to analyze and track student response to class material.
 * Add additional functionality such as allowing the teacher to add in time-stamps corresponding to different sections of the lecture integrate lesson plan uploading * smart processing of lesson plan to automatically generate time-stamp
 * Integration into online classroom platform - e.g. udemy. Analyzes images passed through webcam
 * Eliminating the influence of personal factors in student response using negative feedback loop, compares student response to overall class response to see if there is complete disassociation with class engagement
+
+# Info
+
+This project contains some exposed private API keys due to the time pressed nature of the Hackathon. These were all cancelled before the project was made public.
+
+# Licence
+This project is licensed under the terms of the MIT license.
