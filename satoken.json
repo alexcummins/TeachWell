@@ -1,12 +1,12 @@
 {
   "type": "service_account",
   "project_id": "ichack-image-processing",
-  "private_key_id": "b6db07cceb39a184425d6dd89298a3fd6f76822f",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDIbr2mOsVbcNnE\ngMf36jP7JDapwM2NiSCEhnF9G6CamvT6dSIxLw1Eg1HaWNN6zOcmZuSjDDBdu56Q\nTrwv2xW3W55fHY5exPJpEv6uSlROEmuNYcb4aqjmv12nnZWe/IoDswA4Ehbn72oQ\nYHfVKoQnnWY+SnMOzG5wZYNUNwAPRK8FueTckNqUrp14dkAODAqyWoffQMMbl1lA\nFL+48uHhOyfPFbPDcOhhtdTcSRpguK0S+7m9193MxFY8xnbxX09FZhyx95xlnitT\nn8wMVdDUPOTEAprhp9Z8FVHrdK4P1d+MikPkbqaOHDof2QWbxhWGEgeD1TIf9moc\nhGHcaqDnAgMBAAECggEAFMeaZOIB9Q15nkxFrxe6ZOanviithud5FhRELtbO60h2\nboL3VQcORpSgx1TfNAOLUWloedj5KLabZVWsX//EPBrFDBJp4Lxlb2xXOCWfoOp6\n+RDyim2wbh/X61lEmlOPUXvc4XNKqagiJGmD8vcx9VN1tq6MSDP8nS2BFJmRKYPj\n8xdiBc/YpV1hBy/C9/qk3ziULEDTS9DDkCK2lofd+MRpj0lg626tyq8GBc7SAVK4\nsGCKZWVvvRSB3LY6rUCWxYQK9h2PiWbh7T7VeusFJQM0Qm69vWHuFS9Lpi2XMhvL\nFu3RVZHx2tgA4Qvu3knZa13pmXE2c+fBDH0qqehsxQKBgQDj4FSJkAKx0tD7PVHx\nO62gx1xaZrjOWC69mV97vfQP6QtBoqynr17DvBiaCHvRDUNI+HdUCrZWFLWZVLIJ\n/AF+rLRA5/7ZxiokU5/oN4r9ClUAZDbOmxclw2xatd7WFA3D3pjS5fVpCfHD1xYn\nwBSp1MQZ6WuYNvr9DTKePZvvRQKBgQDhK1YhcBcUuUY7B6AvjyXYtrxqXTIzPwa+\nxTw8pJo9a7X2WTYUnpavLG5tMJHlFFvm10XhQ/0ScnBmd063irXPT7087zvlWBhT\noZuHAMy1dQFVQD26cxMma+8vGtzohDZh/wdXSImAQEuNqUd+qFSTTWikjUn5kaNH\n+dqaaspMOwKBgQDCELlOEgQJdvWdEYLog5+BrmbbYmH+8SCVPboQgxwINLruYeDS\nScrVvSnifFkeF0J3MYtGWn0gYDCr7XJWiHSpceFs6WakBly7ZTBormzCxPrRA4ed\nen1DHuP3eK3W+WsjpT3XVhojI2HvHAz1O2Mdo2KCgsSr9B7aRVQXaXaUVQKBgQDB\nQEdo5WH52FWtXgseJlaOG6+z/g6SqvooCvF6/q6eHm6KYuCma8HZ0GFp9zCQEpwZ\nkBMalhaCmZNcbfMyVatapQ4+WPjoCma+iEoKYSZQan5dY4hXGGKMLECZBg4oxShD\njPUI9WmFmCkACRQiYWhNEDfKWrTtrBAeOxNiSlsbdwKBgQCtCw+fj27Jufej6Iga\nFomb3ZiAP7WU2CwHG5Lt5i4GT3D/zZr7IZQuRuDUgU+s7j4orDjZR8wjtgxHGvUV\nsL7rjfJD+nv05YSJDIXQP8jYiLa/6o9rsc4v/qJ7/eHkpgwbn4stx6iEQs4YXpUy\nAFwFqB+upX5KvK/ikw4ycGssyg==\n-----END PRIVATE KEY-----\n",
-  "client_email": "visionsa@ichack-image-processing.iam.gserviceaccount.com",
-  "client_id": "116018399024442310950",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/visionsa%40ichack-image-processing.iam.gserviceaccount.com"
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "",
+  "client_id": "",
+  "auth_uri": "",
+  "token_uri": "",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": ""
 }
